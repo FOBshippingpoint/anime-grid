@@ -238,7 +238,7 @@ async function searchWikiTitle(keyword) {
 
     const item = langlinks[0];
     // replace like "進撃の巨人 (漫画)" -> "進撃の巨人"
-    title = item["*"].replace(/\s\(.*\)/, "");
+    const title = item["*"].replace(/\s\(.*\)/, "");
     return title;
   } catch (err) {
     console.error(err);
