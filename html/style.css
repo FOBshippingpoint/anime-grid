@@ -3,6 +3,10 @@ body {
   justify-content: center;
   padding: 1rem;
   flex-direction: column;
+  /* font-family: "Noto Serif TC", serif; */
+  font-family: "Noto Sans TC", sans-serif;
+
+  font-weight: 500;
 }
 main {
   width: 50%;
@@ -30,6 +34,12 @@ main {
   }
 }
 
+@media only screen and (max-width: 450px) {
+  #my_table {
+    font-size: 1rem;
+  }
+}
+
 footer {
   text-align: center;
   font-size: 12px;
@@ -42,6 +52,10 @@ footer a {
 footer span {
   color: #999;
   padding: 0 5px;
+}
+
+#table_container {
+  margin: 1rem;
 }
 
 #table_container_wrapper {
@@ -62,6 +76,7 @@ footer span {
   border-collapse: collapse;
   border: 3px solid #000000;
   cursor: pointer;
+  font-size: 1.2rem;
 }
 #my_table th,
 td {
@@ -132,6 +147,8 @@ button {
   color: white;
   border: none;
   cursor: pointer;
+  font-family: "Noto Sans TC", sans-serif;
+  font-size: 1rem;
 }
 #img_container {
   display: flex;
@@ -162,9 +179,6 @@ button {
   display: flex;
   gap: 10px;
 }
-
-h1 {
-  /* position: fixed; */
-  top: 50px;
-  text-align: center;
+label {
+  font-size: 1.2rem;
 }

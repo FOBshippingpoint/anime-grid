@@ -1,12 +1,14 @@
 // new convert image function
 
 function convertToImage() {
-  html2canvas(document.getElementById("table_container")).then((canvas) => {
-    var link = document.createElement("a");
-    link.download = "image.png";
-    link.href = canvas.toDataURL();
-    link.click();
-  });
+  html2canvas(document.getElementById("table_container_wrapper")).then(
+    (canvas) => {
+      var link = document.createElement("a");
+      link.download = "image.png";
+      link.href = canvas.toDataURL();
+      link.click();
+    }
+  );
 }
 
 const table = document.getElementById("my_table");
@@ -154,7 +156,7 @@ addRowForm.addEventListener("submit", function (e) {
 
 saveButton.addEventListener("click", async function () {
   // table_container is the target for final image rendering.
-  const container = document.getElementById("table_container");
+  const container = document.getElementById("table_container_wrapper");
   saveButton.innerText = "載入中...";
   try {
     const dataURL = await htmlToImage.toJpeg(container, {
