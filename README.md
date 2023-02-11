@@ -1,10 +1,13 @@
 # 🤖「動畫生涯個人喜好表生成器」
 
-一個生成 動畫生涯個人喜好表 的網頁工具
-
-![](https://i.imgur.com/3W13QNP.png)
+一個生成 [動畫生涯個人喜好表](https://fobshippingpoint.github.io/anime-grid/) 的網頁工具
 
 Forked from [itorr/anime-grid](https://github.com/itorr/anime-grid).
+
+## 截圖
+
+![](https://i.imgur.com/3W13QNP.png)
+![](https://i.imgur.com/bfQDgGM.png)
 
 ## Developing
 
