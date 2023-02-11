@@ -10,6 +10,11 @@ main {
   margin: 0 auto;
   padding: 1rem;
 }
+@media only screen and (max-width: 576px) {
+  main {
+    width: 100%;
+  }
+}
 @media only screen and (max-width: 768px) {
   body {
     padding: 0;
@@ -17,11 +22,6 @@ main {
   main {
     width: 80%;
     padding: 0;
-  }
-}
-@media only screen and (max-width: 576px) {
-  main {
-    width: 100%;
   }
 }
 @media only screen and (min-width: 769px) and (max-width: 992px) {

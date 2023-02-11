@@ -1,14 +1,3 @@
-// new convert image function
-
-function convertToImage() {
-  html2canvas(document.getElementById("table_container")).then((canvas) => {
-    var link = document.createElement("a");
-    link.download = "image.png";
-    link.href = canvas.toDataURL();
-    link.click();
-  });
-}
-
 const table = document.getElementById("my_table");
 
 // add row form
@@ -30,10 +19,8 @@ const cancel = document.getElementById("cancel");
 const saveButton = document.getElementById("save_button");
 
 // indicate which cell should edit, reassign when user click
-let targetCell;
 let targetImg;
-
-const currentUrl = window.location.href;
+let targetDescription;
 
 /**
  * Add row to table
@@ -41,7 +28,6 @@ const currentUrl = window.location.href;
  * @param {{numColumns: number, descriptionList: string[]}}
  */
 function addRow({ numColumns, descriptionList }) {
-  const table = document.getElementById("my_table");
   if (descriptionList) {
     numColumns = descriptionList.length;
   } else if (!numColumns) {
@@ -55,66 +41,67 @@ function addRow({ numColumns, descriptionList }) {
   const row = table.insertRow(-1);
   for (let i = 0; i < numColumns; i++) {
     const cell = row.insertCell(i);
+    cell.innerHTML =
+      `<div class="cell-wrapper"><img class="cell-img" src="data:," alt="data:," /><div class="cell-description"></div></div>`;
+    targetImg = cell.querySelector(".cell-img");
+    targetDescription = cell.querySelector(".cell-description");
     if (descriptionList) {
-      editCell(
-        cell,
+      editTargetCell(
         "https://picsum.photos/" +
           getRandomArbitrary(250, 300) +
           "/" +
           getRandomArbitrary(400, 450),
-        descriptionList[i]
+        descriptionList[i],
       );
     } else {
-      editCell(
-        cell,
+      editTargetCell(
         "https://picsum.photos/" +
           getRandomArbitrary(250, 300) +
           "/" +
           getRandomArbitrary(400, 450),
-        "點擊選擇"
+        "點擊選擇",
       );
     }
   }
 }
 
-function editCell(cell, imgURL, description) {
-  cell.innerHTML = `<div class="cell-wrapper"><img src="${imgURL}" alt="${imgURL}" ><div>${description}</div></div>`;
+function editTargetCell(imgURL, description) {
+  if (imgURL !== "data:,") {
+    targetImg.src = imgURL;
+    targetImg.alt = imgURL;
+  }
+  targetDescription.innerText = description;
 }
 
 // handle submit edit cell form
 editForm.addEventListener("submit", function (e) {
   e.preventDefault();
-  if (imgPreview.src == currentUrl) {
-    console.log("no image");
-    editCell(targetCell, targetImg.src, descriptionInput.value);
-    imgPreview.src = "";
-    editDialog.style.display = "none";
-    editForm.reset();
-    searchResult.innerHTML = "";
-  } else {
-    editCell(targetCell, imgPreview.src, descriptionInput.value);
-    imgPreview.src = "";
-    editDialog.style.display = "none";
-    editForm.reset();
-    searchResult.innerHTML = "";
-  }
+  editTargetCell(imgPreview.src, descriptionInput.value);
+  // reset imgPreview
+  imgPreview.src = "data:,";
+  imgPreview.style.display = "none";
+
+  editDialog.style.display = "none";
+  searchResult.innerHTML = "";
+  editForm.reset();
 });
 
 cancel.addEventListener("click", function () {
   editDialog.style.display = "none";
 });
 
-function updateImgPreview(file) {
+function updateImgPreviewFromFile(file) {
   const reader = new FileReader();
   reader.addEventListener("load", function () {
     imgPreview.src = reader.result;
+    imgPreview.style.display = "block";
   });
   reader.readAsDataURL(file);
 }
 
 imgFileInput.addEventListener("change", function () {
   const file = imgFileInput.files[0];
-  updateImgPreview(file);
+  updateImgPreviewFromFile(file);
 });
 
 // paste, update image
@@ -124,17 +111,17 @@ editForm.addEventListener("paste", function (e) {
   const item = [...data.items].find((i) => i.type.includes("image"));
 
   if (item?.kind === "file") {
-    updateImgPreview(item.getAsFile());
+    updateImgPreviewFromFile(item.getAsFile());
   }
 });
 
 // open edit editDialog
 table.addEventListener("click", function (e) {
   editDialog.style.display = "block";
-  targetCell = e.target.closest("td");
-  targetImg = e.target.closest("img");
-  console.log(targetImg);
-  descriptionInput.value = targetCell.querySelector("div").innerText;
+  const targetCell = e.target.closest(".cell-wrapper");
+  targetImg = targetCell.querySelector(".cell-img");
+  targetDescription = targetCell.querySelector(".cell-description");
+  descriptionInput.value = targetDescription.innerText;
   searchInput.focus();
 });
 
@@ -149,30 +136,24 @@ addRowForm.addEventListener("submit", function (e) {
   e.preventDefault();
   columnsInput.disabled = true;
   addRow({ numColumns: columnsInput.value });
-  addRowForm.reset();
 });
 
 saveButton.addEventListener("click", async function () {
-  // table_container is the target for final image rendering.
-  const container = document.getElementById("table_container");
   saveButton.innerText = "載入中...";
+  // table_container is the target for final image rendering.
+  const target = document.getElementById("table_container");
   try {
-    const dataURL = await htmlToImage.toJpeg(container, {
-      quality: 0.96,
+    const canvas = await html2canvas(target, {
+      allowTaint: true,
+      useCORS: true,
     });
-
-    // download image
-    // const link = document.createElement("a");
-    // link.download = "output.png";
-    // link.href = dataURL;
+    const link = document.createElement("a");
+    // link.download = "image.png";
+    // link.href = canvas.toDataURL();
     // link.click();
-
-    convertToImage();
-
-    // append htmlToImage result below
-    // const img = new Image();
-    // img.src = dataURL;
-    // document.querySelector("main").appendChild(img);
+    const img = document.createElement("img");
+    document.getElementById("table_container_wrapper").appendChild(img);
+    img.src = canvas.toDataURL();
   } catch (err) {
     console.error(err);
   }
@@ -186,83 +167,89 @@ function initTableFromTemplate(template) {
   }
 }
 
-searchInput.addEventListener("keydown", async function (e) {
+function debounce(func, timeout = 300) {
+  let timer;
+  return (...args) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      func.apply(this, args);
+    }, timeout);
+  };
+}
+
+async function handleSearch(e) {
   if (e.key === "Enter") {
     e.preventDefault();
-    const keyword = searchInput.value;
-    // example url: https://zh.wikipedia.org/w/api.php?action=query&lllimit=500&prop=langlinks&titles=%E9%80%B2%E6%93%8A%E7%9A%84%E5%B7%A8%E4%BA%BA&format=json
-    const title = await searchJapaneseTitle(keyword);
-    searchImage(title);
   }
-});
+  let keyword = searchInput.value;
 
-async function searchJapaneseTitle(keyword) {
-  if (keyword === "") return;
-  keyword = encodeURIComponent(keyword.trim());
-  const url = `https://zh.wikipedia.org/w/api.php?action=query&lllimit=500&prop=langlinks&titles=${keyword}&format=json&origin=*`;
+  // use wiki to get japanese artwork title
+  if (keyword.length >= 3) {
+    const title = await searchWikiTitle(keyword);
+    keyword = title ?? keyword;
+  }
+
+  const images = await searchImageFromAniList(keyword);
+  // show image search result
+  imgContainer.innerHTML = "";
+  for (const url of images) {
+    const img = document.createElement("img");
+    img.src = url;
+    img.addEventListener("click", function () {
+      imgPreview.src = img.src;
+      imgPreview.style.display = "block";
+      imgContainer.innerHTML = "";
+    });
+    imgContainer.appendChild(img);
+  }
+}
+
+// handle search
+searchInput.addEventListener("keydown", debounce(handleSearch));
+
+async function searchWikiTitle(keyword) {
+  keyword = encodeURIComponent(keyword);
+  // wiki page title search
+  // https://www.mediawiki.org/wiki/API:Opensearch
+  let url =
+    `https://zh.wikipedia.org/w/api.php?action=opensearch&search=${keyword}&limit=10&namespace=0&redirects=resolve&format=json&origin=*`;
   try {
-    const response = await fetch(url);
-    const json = await response.json();
+    let response = await fetch(url);
+    let json = await response.json();
+
+    console.log("page title search");
+    console.log(json);
+
+    if (!json[1][0]) return;
+    keyword = json[1][0];
+    // langlinks search
+    // https://www.mediawiki.org/wiki/API:Langlinks
+    url =
+      `https://zh.wikipedia.org/w/api.php?action=query&lllimit=1&prop=langlinks&lllang=ja&titles=${keyword}&format=json&origin=*`;
+    response = await fetch(url);
+    json = await response.json();
+
+    console.log("langlinks search");
+    console.log(json.query.pages);
+
     if (Object.values(json.query.pages).length === 0) return;
     // get first object
     const langlinks = Object.values(json.query.pages)[0].langlinks;
-    if (langlinks) {
-      for (const item of langlinks) {
-        if (item.lang === "ja") {
-          let title = item["*"];
-          title = title.replace(" (漫画)", "");
-          return title;
-        }
-      }
-    }
+    if (!langlinks) return;
+
+    const item = langlinks[0];
+    let title = item["*"];
+    console.log(title);
+    title = title.replace(/\s\(.*\)/, "");
+    console.log("replaced");
+    console.log(title);
+    return title;
   } catch (err) {
     console.error(err);
   }
   searchResult.innerHTML =
     `<a href="https://www.google.com/search?tbm=isch&q=${keyword}" target="_blank">在Google圖片搜尋</a>` +
     "<div>右鍵複製圖片後在此貼上</div>";
-}
-
-async function searchImage(keyword) {
-  keyword = encodeURIComponent(keyword.trim());
-  const url =
-    `https://api.annict.com/v1/works?access_token=${
-      import.meta.env.VITE_ANNICT_API_TOKEN
-    }` + `&fields=images,title,twitter_username&filter_title=${keyword}`;
-  try {
-    const response = await fetch(url);
-    const json = await response.json();
-    imgContainer.innerHTML = "";
-    for (const work of json.works) {
-      // fetch twitter profile photo, currently not working :(
-      // if (work.twitter_username) {
-      //   const avatarURL = `https://unavatar.io/twitter/${work.twitter_username}`
-      //   const imgContainer = document.getElementById('img_container')
-      //   const img = document.createElement('img')
-      //   img.src = avatarURL
-      //   imgContainer.appendChild(img)
-      // }
-
-      // append image to imgContainer for user to choose
-      if (work.images.recommended_url !== "") {
-        const img = document.createElement("img");
-        img.src = work.images.recommended_url;
-        img.addEventListener("click", function () {
-          imgPreview.src = img.src;
-          imgContainer.innerHTML = "";
-        });
-        imgContainer.appendChild(img);
-      }
-    }
-    searchResult.innerHTML =
-      "<div>找不到結果嗎？試著</div>" +
-      `<a href="https://www.google.com/search?tbm=isch&q=${keyword}" target="_blank">在Google圖片搜尋</a>` +
-      " or " +
-      `<a href="https://annict.com/search?q=${keyword}" target="_blank">在Annict上搜尋</a>` +
-      "<div>右鍵複製圖片後在此貼上</div>";
-  } catch (err) {
-    console.log(err);
-  }
 }
 
 // itorr's initial grid context
@@ -296,6 +283,7 @@ const templateInput = [
   "最離譜",
   "最討厭",
 ];
+
 function addOption(template) {
   template.forEach((element) => {
     let option = document.createElement("option");
@@ -308,3 +296,53 @@ function addOption(template) {
 addOption(templateInput);
 
 initTableFromTemplate(initialTemplate);
+
+async function searchImageFromAniList(keyword) {
+  const query = `
+  query ($page: Int, $perPage: Int, $search: String) {
+    Page(page: $page, perPage: $perPage) {
+      pageInfo {
+        total
+        currentPage
+        lastPage
+        hasNextPage
+        perPage
+      }
+      media(search: $search, sort: FAVOURITES_DESC) {
+        title {
+          romaji
+          english
+          native
+        }
+        coverImage {
+          medium
+        }
+      }
+    }
+  }
+  `;
+
+  const variables = {
+    page: 1,
+    perPage: 14,
+    search: keyword,
+  };
+
+  const response = await fetch("https://graphql.anilist.co", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Accept-Encoding": "gzip",
+    },
+    body: JSON.stringify({ query, variables }),
+  });
+  const json = await response.json();
+  const mediaList = json?.data?.Page?.media;
+  if (Array.isArray(mediaList) && mediaList.length > 0) {
+    const images = mediaList.map((m) => {
+      return m.coverImage.medium;
+    });
+    return images;
+  }
+  return [];
+}
