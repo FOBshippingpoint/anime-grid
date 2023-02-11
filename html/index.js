@@ -9,7 +9,7 @@ const resetButton = document.getElementById("reset_button");
 const editDialog = document.getElementById("edit_dialog");
 const editForm = document.getElementById("edit_form");
 const searchInput = document.getElementById("search_work_input");
-const searchResult = document.getElementById("search_result");
+// const searchResult = document.getElementById("search_result");
 const imgFileInput = document.getElementById("img_file_input");
 const imgContainer = document.getElementById("img_container");
 const imgPreview = document.getElementById("img_preview");
@@ -82,7 +82,7 @@ editForm.addEventListener("submit", function (e) {
   imgPreview.style.display = "none";
 
   editDialog.style.display = "none";
-  searchResult.innerHTML = "";
+  // searchResult.innerHTML = "";
   editForm.reset();
 });
 
@@ -147,13 +147,16 @@ saveButton.addEventListener("click", async function () {
       allowTaint: true,
       useCORS: true,
     });
+    // download rendered image
     const link = document.createElement("a");
-    // link.download = "image.png";
-    // link.href = canvas.toDataURL();
-    // link.click();
-    const img = document.createElement("img");
-    document.getElementById("table_container_wrapper").appendChild(img);
-    img.src = canvas.toDataURL();
+    link.download = "image.png";
+    link.href = canvas.toDataURL();
+    link.click();
+
+    // show rendered image at bottom
+    // const img = document.createElement("img");
+    // document.getElementById("table_container_wrapper").appendChild(img);
+    // img.src = canvas.toDataURL();
   } catch (err) {
     console.error(err);
   }
@@ -210,27 +213,23 @@ searchInput.addEventListener("keydown", debounce(handleSearch));
 async function searchWikiTitle(keyword) {
   keyword = encodeURIComponent(keyword);
   // wiki page title search
-  // https://www.mediawiki.org/wiki/API:Opensearch
+  // docs: https://www.mediawiki.org/wiki/API:Opensearch
   let url =
     `https://zh.wikipedia.org/w/api.php?action=opensearch&search=${keyword}&limit=10&namespace=0&redirects=resolve&format=json&origin=*`;
   try {
     let response = await fetch(url);
     let json = await response.json();
 
-    console.log("page title search");
-    console.log(json);
 
     if (!json[1][0]) return;
     keyword = json[1][0];
     // langlinks search
-    // https://www.mediawiki.org/wiki/API:Langlinks
+    // docs: https://www.mediawiki.org/wiki/API:Langlinks
     url =
       `https://zh.wikipedia.org/w/api.php?action=query&lllimit=1&prop=langlinks&lllang=ja&titles=${keyword}&format=json&origin=*`;
     response = await fetch(url);
     json = await response.json();
 
-    console.log("langlinks search");
-    console.log(json.query.pages);
 
     if (Object.values(json.query.pages).length === 0) return;
     // get first object
@@ -238,18 +237,65 @@ async function searchWikiTitle(keyword) {
     if (!langlinks) return;
 
     const item = langlinks[0];
-    let title = item["*"];
-    console.log(title);
-    title = title.replace(/\s\(.*\)/, "");
-    console.log("replaced");
-    console.log(title);
+    // replace like "進撃の巨人 (漫画)" -> "進撃の巨人"
+    title = item["*"].replace(/\s\(.*\)/, "");
     return title;
   } catch (err) {
     console.error(err);
   }
-  searchResult.innerHTML =
-    `<a href="https://www.google.com/search?tbm=isch&q=${keyword}" target="_blank">在Google圖片搜尋</a>` +
-    "<div>右鍵複製圖片後在此貼上</div>";
+  // searchResult.innerHTML =
+  //   `<a href="https://www.google.com/search?tbm=isch&q=${keyword}" target="_blank">在Google圖片搜尋</a>` +
+  //   "<div>右鍵複製圖片後在此貼上</div>";
+}
+
+async function searchImageFromAniList(keyword) {
+  const query = `
+  query ($page: Int, $perPage: Int, $search: String) {
+    Page(page: $page, perPage: $perPage) {
+      pageInfo {
+        total
+        currentPage
+        lastPage
+        hasNextPage
+        perPage
+      }
+      media(search: $search, sort: FAVOURITES_DESC) {
+        title {
+          romaji
+          english
+          native
+        }
+        coverImage {
+          large
+        }
+      }
+    }
+  }
+  `;
+
+  const variables = {
+    page: 1,
+    perPage: 12,
+    search: keyword,
+  };
+
+  const response = await fetch("https://graphql.anilist.co", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Accept-Encoding": "gzip",
+    },
+    body: JSON.stringify({ query, variables }),
+  });
+  const json = await response.json();
+  const mediaList = json?.data?.Page?.media;
+  if (Array.isArray(mediaList) && mediaList.length > 0) {
+    const images = mediaList.map((m) => {
+      return m.coverImage.large;
+    });
+    return images;
+  }
+  return [];
 }
 
 // itorr's initial grid context
@@ -259,7 +305,7 @@ const initialTemplate = [
   ["最虐心", "最被低估", "最過譽", "最離譜", "最討厭"],
 ];
 
-const templateInput = [
+const templateOptions = [
   "入坑作",
   "最喜歡",
   "看最多次",
@@ -284,65 +330,15 @@ const templateInput = [
   "最討厭",
 ];
 
-function addOption(template) {
-  template.forEach((element) => {
-    let option = document.createElement("option");
+function addOption(options) {
+  options.forEach((element) => {
+    const option = document.createElement("option");
     option.text = element;
     option.value = element;
     descriptionInput.add(option);
   });
 }
 
-addOption(templateInput);
+addOption(templateOptions);
 
 initTableFromTemplate(initialTemplate);
-
-async function searchImageFromAniList(keyword) {
-  const query = `
-  query ($page: Int, $perPage: Int, $search: String) {
-    Page(page: $page, perPage: $perPage) {
-      pageInfo {
-        total
-        currentPage
-        lastPage
-        hasNextPage
-        perPage
-      }
-      media(search: $search, sort: FAVOURITES_DESC) {
-        title {
-          romaji
-          english
-          native
-        }
-        coverImage {
-          medium
-        }
-      }
-    }
-  }
-  `;
-
-  const variables = {
-    page: 1,
-    perPage: 14,
-    search: keyword,
-  };
-
-  const response = await fetch("https://graphql.anilist.co", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Accept-Encoding": "gzip",
-    },
-    body: JSON.stringify({ query, variables }),
-  });
-  const json = await response.json();
-  const mediaList = json?.data?.Page?.media;
-  if (Array.isArray(mediaList) && mediaList.length > 0) {
-    const images = mediaList.map((m) => {
-      return m.coverImage.medium;
-    });
-    return images;
-  }
-  return [];
-}
