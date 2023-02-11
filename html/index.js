@@ -1,3 +1,14 @@
+// new convert image function
+
+function convertToImage() {
+  html2canvas(document.getElementById("table_container")).then((canvas) => {
+    var link = document.createElement("a");
+    link.download = "image.png";
+    link.href = canvas.toDataURL();
+    link.click();
+  });
+}
+
 const table = document.getElementById("my_table");
 
 // add row form
@@ -146,13 +157,17 @@ saveButton.addEventListener("click", async function () {
   const container = document.getElementById("table_container");
   saveButton.innerText = "載入中...";
   try {
-    const dataURL = await htmlToImage.toJpeg(container, { quality: 0.96 });
+    const dataURL = await htmlToImage.toJpeg(container, {
+      quality: 0.96,
+    });
 
     // download image
-    const link = document.createElement("a");
-    link.download = "output.png";
-    link.href = dataURL;
-    link.click();
+    // const link = document.createElement("a");
+    // link.download = "output.png";
+    // link.href = dataURL;
+    // link.click();
+
+    convertToImage();
 
     // append htmlToImage result below
     // const img = new Image();
