@@ -141,7 +141,7 @@ addRowForm.addEventListener("submit", function (e) {
 saveButton.addEventListener("click", async function () {
   saveButton.innerText = "載入中...";
   // table_container is the target for final image rendering.
-  const target = document.getElementById("table_container");
+  const target = document.getElementById("table_container_wrapper");
   try {
     const canvas = await html2canvas(target, {
       allowTaint: true,
