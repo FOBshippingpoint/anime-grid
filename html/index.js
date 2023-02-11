@@ -1,3 +1,14 @@
+// new convert image function
+
+function convertToImage() {
+  html2canvas(document.getElementById("table_container")).then((canvas) => {
+    var link = document.createElement("a");
+    link.download = "image.png";
+    link.href = canvas.toDataURL();
+    link.click();
+  });
+}
+
 const table = document.getElementById("my_table");
 
 // add row form
@@ -20,6 +31,9 @@ const saveButton = document.getElementById("save_button");
 
 // indicate which cell should edit, reassign when user click
 let targetCell;
+let targetImg;
+
+const currentUrl = window.location.href;
 
 /**
  * Add row to table
@@ -44,34 +58,46 @@ function addRow({ numColumns, descriptionList }) {
     if (descriptionList) {
       editCell(
         cell,
-        "https://picsum.photos/" + getRandomArbitrary(250, 300) + "/" +
+        "https://picsum.photos/" +
+          getRandomArbitrary(250, 300) +
+          "/" +
           getRandomArbitrary(400, 450),
-        descriptionList[i],
+        descriptionList[i]
       );
     } else {
       editCell(
         cell,
-        "https://picsum.photos/" + getRandomArbitrary(250, 300) + "/" +
+        "https://picsum.photos/" +
+          getRandomArbitrary(250, 300) +
+          "/" +
           getRandomArbitrary(400, 450),
-        "點擊輸入",
+        "點擊選擇"
       );
     }
   }
 }
 
 function editCell(cell, imgURL, description) {
-  cell.innerHTML =
-    `<div class="cell-wrapper"><img src="${imgURL}" alt="${imgURL}" ><div>${description}</div></div>`;
+  cell.innerHTML = `<div class="cell-wrapper"><img src="${imgURL}" alt="${imgURL}" ><div>${description}</div></div>`;
 }
 
 // handle submit edit cell form
 editForm.addEventListener("submit", function (e) {
   e.preventDefault();
-  editCell(targetCell, imgPreview.src, descriptionInput.value);
-  imgPreview.src = "";
-  editDialog.style.display = "none";
-  editForm.reset();
-  searchResult.innerHTML = "";
+  if (imgPreview.src == currentUrl) {
+    console.log("no image");
+    editCell(targetCell, targetImg.src, descriptionInput.value);
+    imgPreview.src = "";
+    editDialog.style.display = "none";
+    editForm.reset();
+    searchResult.innerHTML = "";
+  } else {
+    editCell(targetCell, imgPreview.src, descriptionInput.value);
+    imgPreview.src = "";
+    editDialog.style.display = "none";
+    editForm.reset();
+    searchResult.innerHTML = "";
+  }
 });
 
 cancel.addEventListener("click", function () {
@@ -93,7 +119,7 @@ imgFileInput.addEventListener("change", function () {
 
 // paste, update image
 editForm.addEventListener("paste", function (e) {
-  const data = (e.clipboardData || window.clipboardData);
+  const data = e.clipboardData || window.clipboardData;
   if (!data) return;
   const item = [...data.items].find((i) => i.type.includes("image"));
 
@@ -106,6 +132,8 @@ editForm.addEventListener("paste", function (e) {
 table.addEventListener("click", function (e) {
   editDialog.style.display = "block";
   targetCell = e.target.closest("td");
+  targetImg = e.target.closest("img");
+  console.log(targetImg);
   descriptionInput.value = targetCell.querySelector("div").innerText;
   searchInput.focus();
 });
@@ -129,13 +157,17 @@ saveButton.addEventListener("click", async function () {
   const container = document.getElementById("table_container");
   saveButton.innerText = "載入中...";
   try {
-    const dataURL = await htmlToImage.toJpeg(container, { quality: 0.96 });
+    const dataURL = await htmlToImage.toJpeg(container, {
+      quality: 0.96,
+    });
 
     // download image
-    const link = document.createElement("a");
-    link.download = "output.png";
-    link.href = dataURL;
-    link.click();
+    // const link = document.createElement("a");
+    // link.download = "output.png";
+    // link.href = dataURL;
+    // link.click();
+
+    convertToImage();
 
     // append htmlToImage result below
     // const img = new Image();
@@ -167,8 +199,7 @@ searchInput.addEventListener("keydown", async function (e) {
 async function searchJapaneseTitle(keyword) {
   if (keyword === "") return;
   keyword = encodeURIComponent(keyword.trim());
-  const url =
-    `https://zh.wikipedia.org/w/api.php?action=query&lllimit=500&prop=langlinks&titles=${keyword}&format=json&origin=*`;
+  const url = `https://zh.wikipedia.org/w/api.php?action=query&lllimit=500&prop=langlinks&titles=${keyword}&format=json&origin=*`;
   try {
     const response = await fetch(url);
     const json = await response.json();
@@ -195,8 +226,9 @@ async function searchJapaneseTitle(keyword) {
 async function searchImage(keyword) {
   keyword = encodeURIComponent(keyword.trim());
   const url =
-    `https://api.annict.com/v1/works?access_token=${import.meta.env.VITE_ANNICT_API_TOKEN}` +
-    `&fields=images,title,twitter_username&filter_title=${keyword}`;
+    `https://api.annict.com/v1/works?access_token=${
+      import.meta.env.VITE_ANNICT_API_TOKEN
+    }` + `&fields=images,title,twitter_username&filter_title=${keyword}`;
   try {
     const response = await fetch(url);
     const json = await response.json();
@@ -222,7 +254,8 @@ async function searchImage(keyword) {
         imgContainer.appendChild(img);
       }
     }
-    searchResult.innerHTML = "<div>找不到結果嗎？試著</div>" +
+    searchResult.innerHTML =
+      "<div>找不到結果嗎？試著</div>" +
       `<a href="https://www.google.com/search?tbm=isch&q=${keyword}" target="_blank">在Google圖片搜尋</a>` +
       " or " +
       `<a href="https://annict.com/search?q=${keyword}" target="_blank">在Annict上搜尋</a>` +
@@ -238,5 +271,40 @@ const initialTemplate = [
   ["最佳畫面", "最佳配樂", "最佳配音", "最治癒", "最感動"],
   ["最虐心", "最被低估", "最過譽", "最離譜", "最討厭"],
 ];
+
+const templateInput = [
+  "入坑作",
+  "最喜歡",
+  "看最多次",
+  "最想安利",
+  "最佳劇情",
+  "最佳畫面",
+  "最佳配樂",
+  "最佳配音",
+  "最治癒",
+  "最感動",
+  "最虐心",
+  "最被低估",
+  "最過譽",
+  "最離譜",
+  "最討厭",
+  "最治癒",
+  "最感動",
+  "最虐心",
+  "最被低估",
+  "最過譽",
+  "最離譜",
+  "最討厭",
+];
+function addOption(template) {
+  template.forEach((element) => {
+    let option = document.createElement("option");
+    option.text = element;
+    option.value = element;
+    descriptionInput.add(option);
+  });
+}
+
+addOption(templateInput);
 
 initTableFromTemplate(initialTemplate);
