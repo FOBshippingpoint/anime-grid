@@ -183,8 +183,8 @@ async function handleSearch(e) {
   if (e.key === "Enter") {
     e.preventDefault();
   }
-  if (searchInput.value === '') {
-    return
+  if (searchInput.value === "") {
+    return;
   }
 
   let keyword = searchInput.value;
@@ -331,6 +331,14 @@ const templateOptions = [
   "最過譽",
   "最離譜",
   "最討厭",
+  "最暴死",
+  "最佳原創",
+  "最佳漫改",
+  "最荒謬",
+  "最後悔看",
+  "最冷門神作",
+  "最佳OP",
+  "最佳ED",
 ];
 
 function addOption(options) {
