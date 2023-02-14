@@ -9,7 +9,7 @@ const resetButton = document.getElementById("reset_button");
 const editDialog = document.getElementById("edit_dialog");
 const editForm = document.getElementById("edit_form");
 const searchInput = document.getElementById("search_work_input");
-// const searchResult = document.getElementById("search_result");
+const searchResult = document.getElementById("search_result");
 const imgFileInput = document.getElementById("img_file_input");
 const imgContainer = document.getElementById("img_container");
 const imgPreview = document.getElementById("img_preview");
@@ -183,6 +183,10 @@ async function handleSearch(e) {
   if (e.key === "Enter") {
     e.preventDefault();
   }
+  if (searchInput.value === '') {
+    return
+  }
+
   let keyword = searchInput.value;
 
   // use wiki to get japanese artwork title
@@ -191,7 +195,9 @@ async function handleSearch(e) {
     keyword = title ?? keyword;
   }
 
+  searchResult.innerText = "搜尋中...";
   const images = await searchImageFromAniList(keyword);
+
   // show image search result
   imgContainer.innerHTML = "";
   for (const url of images) {
@@ -204,6 +210,9 @@ async function handleSearch(e) {
     });
     imgContainer.appendChild(img);
   }
+  searchResult.innerHTML = "<span>找不到想要的圖片嗎？</span>" +
+    `<a href="https://www.google.com/search?tbm=isch&q=${keyword}" target="_blank">在Google圖片搜尋</a>` +
+    "<div>(右鍵複製圖片後在此貼上)</div>";
 }
 
 // handle search
@@ -240,9 +249,6 @@ async function searchWikiTitle(keyword) {
   } catch (err) {
     console.error(err);
   }
-  // searchResult.innerHTML =
-  //   `<a href="https://www.google.com/search?tbm=isch&q=${keyword}" target="_blank">在Google圖片搜尋</a>` +
-  //   "<div>右鍵複製圖片後在此貼上</div>";
 }
 
 async function searchImageFromAniList(keyword) {
