@@ -144,7 +144,6 @@ saveButton.addEventListener("click", async function () {
   const target = document.getElementById("table_container_wrapper");
   try {
     const canvas = await html2canvas(target, {
-      allowTaint: true,
       useCORS: true,
     });
     // download rendered image
@@ -220,7 +219,6 @@ async function searchWikiTitle(keyword) {
     let response = await fetch(url);
     let json = await response.json();
 
-
     if (!json[1][0]) return;
     keyword = json[1][0];
     // langlinks search
@@ -229,7 +227,6 @@ async function searchWikiTitle(keyword) {
       `https://zh.wikipedia.org/w/api.php?action=query&lllimit=1&prop=langlinks&lllang=ja&titles=${keyword}&format=json&origin=*`;
     response = await fetch(url);
     json = await response.json();
-
 
     if (Object.values(json.query.pages).length === 0) return;
     // get first object

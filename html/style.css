@@ -105,7 +105,6 @@ body {
      bottom: 0;
      width: 98%;
      padding: 5px 0;
-     background-color: white;
 }
  .dialog {
      position: fixed;
@@ -171,6 +170,7 @@ body {
  #img_preview {
      width: 200px;
      height: auto;
+     margin: auto;
 }
  #save_button {
      width: 100%;
