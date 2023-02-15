@@ -41,8 +41,7 @@ function addRow({ numColumns, descriptionList }) {
   const row = table.insertRow(-1);
   for (let i = 0; i < numColumns; i++) {
     const cell = row.insertCell(i);
-    cell.innerHTML =
-      `<div class="cell-wrapper"><img class="cell-img" src="data:," alt="data:," /><div class="cell-description"></div></div>`;
+    cell.innerHTML = `<div class="cell-wrapper"><img class="cell-img" src="data:," alt="data:," /><div class="cell-description"></div></div>`;
     targetImg = cell.querySelector(".cell-img");
     targetDescription = cell.querySelector(".cell-description");
     if (descriptionList) {
@@ -51,7 +50,7 @@ function addRow({ numColumns, descriptionList }) {
           getRandomArbitrary(250, 300) +
           "/" +
           getRandomArbitrary(400, 450),
-        descriptionList[i],
+        descriptionList[i]
       );
     } else {
       editTargetCell(
@@ -59,7 +58,7 @@ function addRow({ numColumns, descriptionList }) {
           getRandomArbitrary(250, 300) +
           "/" +
           getRandomArbitrary(400, 450),
-        "點擊選擇",
+        "點擊選擇"
       );
     }
   }
@@ -217,7 +216,8 @@ async function triggerSearch() {
     });
     imgContainer.appendChild(img);
   }
-  searchResult.innerHTML = "<span>找不到想要的圖片嗎？</span>" +
+  searchResult.innerHTML =
+    "<span>找不到想要的圖片嗎？</span>" +
     `<a href="https://www.google.com/search?tbm=isch&q=${keyword}" target="_blank">在Google圖片搜尋</a>` +
     "<div>(右鍵複製圖片後在此貼上)</div>";
 }
@@ -229,6 +229,7 @@ async function searchWikiTitle(keyword) {
   keyword = encodeURIComponent(keyword);
   // wiki page title search
   // docs: https://www.mediawiki.org/wiki/API:Opensearch
+
   let url = new URL("https://zh.wikipedia.org/w/api.php");
   url.searchParams.set("action", "opensearch");
   url.searchParams.set("limit", "10");
@@ -237,6 +238,7 @@ async function searchWikiTitle(keyword) {
   url.searchParams.set("format", "json");
   url.searchParams.set("origin", "*");
   url.searchParams.set("search", keyword);
+
   try {
     let response = await fetch(url);
     let json = await response.json();
@@ -245,6 +247,7 @@ async function searchWikiTitle(keyword) {
     keyword = json[1][0];
     // langlinks search
     // docs: https://www.mediawiki.org/wiki/API:Langlinks
+
     // url =
     //   `?action=query&lllimit=1&prop=langlinks&lllang=ja&titles=${keyword}&format=json&origin=*`;
     url = new URL("https://zh.wikipedia.org/w/api.php");
@@ -255,6 +258,7 @@ async function searchWikiTitle(keyword) {
     url.searchParams.set("format", "json");
     url.searchParams.set("origin", "*");
     url.searchParams.set("titles", keyword);
+
     response = await fetch(url);
     json = await response.json();
 
@@ -393,21 +397,18 @@ const templateOptions = [
   "最過譽",
   "最離譜",
   "最討厭",
-  "最治癒",
-  "最感動",
-  "最虐心",
-  "最被低估",
-  "最過譽",
-  "最離譜",
-  "最討厭",
   "最暴死",
   "最佳原創",
   "最佳漫改",
+  "最佳輕改",
+  "最佳劇場版",
   "最荒謬",
   "最後悔看",
   "最冷門神作",
   "最佳OP",
   "最佳ED",
+  "最期待續作",
+  "最意猶未盡",
 ];
 
 function addOption(options) {
