@@ -14,8 +14,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400&display=swap" rel="stylesheet">
-<script type="module" crossorigin src="/anime-grid/assets/index-32a2bc87.js"></script>
-<link rel="stylesheet" href="/anime-grid/assets/index-ecc61019.css">
+<script type="module" crossorigin src="/anime-grid/assets/index-31646951.js"></script>
+<link rel="stylesheet" href="/anime-grid/assets/index-1892c2df.css">
 
 <body>
   <main>
@@ -90,17 +90,21 @@
     <h2 id="dialog_title" class="h2">加入作品</h2>
       <form id="edit_form">
         <div class="dialog-body">
-          <div>
+          <div class="dialog-title">
             <label for="search">作品名稱</label>
-            <input type="text" id="search_work_input" name="search" placeholder="按Enter開始搜尋" />
+            <input type="text" id="search_work_input" name="search" placeholder="按Enter開始搜尋"  onkeypress="if (event.keyCode == 13) {return false;}"/>
           </div>
           <div>
             <div id="img_container"></div>
             <div id="search_result">&nbsp;&nbsp;</div>
           </div>
           <div>
-            <label for="image">圖片</label>
-            <input type="file" id="img_file_input" name="image" />
+            <label for="img_file_input" id="img_upload_label">
+              <p>圖片</p>
+              <p id="img_upload_label_browse">瀏覽</p>
+            
+            </label>
+            <input type="file" id="img_file_input" name="image" hidden/>
           </div>
           <div>
             <img src="data:," id="img_preview" style="display: none;" />
