@@ -6,7 +6,6 @@ const columnsInput = document.getElementById("columns_input");
 const resetButton = document.getElementById("reset_button");
 
 // edit dialog
-const editDialog = document.getElementById("edit_dialog");
 const editForm = document.getElementById("edit_form");
 const searchInput = document.getElementById("search_work_input");
 const searchResult = document.getElementById("search_result");
@@ -15,6 +14,7 @@ const imgContainer = document.getElementById("img_container");
 const imgPreview = document.getElementById("img_preview");
 const descriptionInput = document.getElementById("description");
 const cancel = document.getElementById("cancel");
+const dialog = document.querySelector("dialog");
 
 const saveButton = document.getElementById("save_button");
 
@@ -73,6 +73,10 @@ function editTargetCell(imgURL, description) {
   targetDescription.innerText = description;
 }
 
+dialog.addEventListener("close", () => {
+  imgContainer.innerHTML = "";
+});
+
 // handle submit edit cell form
 editForm.addEventListener("submit", function (e) {
   e.preventDefault();
@@ -81,13 +85,12 @@ editForm.addEventListener("submit", function (e) {
   imgPreview.src = "data:,";
   imgPreview.style.display = "none";
 
-  editDialog.style.display = "none";
-  // searchResult.innerHTML = "";
+  dialog.close();
   editForm.reset();
 });
 
 cancel.addEventListener("click", function () {
-  editDialog.style.display = "none";
+  dialog.close();
 });
 
 function updateImgPreviewFromFile(file) {
@@ -117,12 +120,13 @@ editForm.addEventListener("paste", function (e) {
 
 // open edit editDialog
 table.addEventListener("click", function (e) {
-  editDialog.style.display = "block";
+  dialog.showModal();
   const targetCell = e.target.closest(".cell-wrapper");
   targetImg = targetCell.querySelector(".cell-img");
   targetDescription = targetCell.querySelector(".cell-description");
   descriptionInput.value = targetDescription.innerText;
   searchInput.focus();
+  triggerSearch();
 });
 
 // clear all table data
@@ -142,20 +146,21 @@ saveButton.addEventListener("click", async function () {
   saveButton.innerText = "載入中...";
   // table_container is the target for final image rendering.
   const target = document.getElementById("table_container_wrapper");
+  // printElement(target);
   try {
     const canvas = await html2canvas(target, {
       useCORS: true,
     });
     // download rendered image
-    const link = document.createElement("a");
-    link.download = "image.png";
-    link.href = canvas.toDataURL();
-    link.click();
+    // const link = document.createElement("a");
+    // link.download = "image.png";
+    // link.href = canvas.toDataURL();
+    // link.click();
 
     // show rendered image at bottom
-    // const img = document.createElement("img");
-    // document.getElementById("table_container_wrapper").appendChild(img);
-    // img.src = canvas.toDataURL();
+    const img = document.createElement("img");
+    document.getElementById("table_container_wrapper").appendChild(img);
+    img.src = canvas.toDataURL();
   } catch (err) {
     console.error(err);
   }
@@ -179,24 +184,26 @@ function debounce(func, timeout = 300) {
   };
 }
 
-async function handleSearch(e) {
+async function handleSearchInput(e) {
   if (e.key === "Enter") {
     e.preventDefault();
   }
-  if (searchInput.value === "") {
+  triggerSearch();
+}
+
+async function triggerSearch() {
+  let keyword = searchInput.value;
+  if (keyword === "") {
     return;
   }
 
-  let keyword = searchInput.value;
-
   // use wiki to get japanese artwork title
-  if (keyword.length >= 3) {
-    const title = await searchWikiTitle(keyword);
-    keyword = title ?? keyword;
-  }
+  const title = await searchWikiTitle(keyword);
+  keyword = title ?? keyword;
 
-  searchResult.innerText = "搜尋中...";
+  searchResult.innerHTML = "<div>搜尋中...</div><div>&nbsp</div>";
   const images = await searchImageFromAniList(keyword);
+  // const images = await searchImageFromGoGoAnime(keyword);
 
   // show image search result
   imgContainer.innerHTML = "";
@@ -216,14 +223,20 @@ async function handleSearch(e) {
 }
 
 // handle search
-searchInput.addEventListener("keydown", debounce(handleSearch));
+searchInput.addEventListener("keydown", debounce(handleSearchInput));
 
 async function searchWikiTitle(keyword) {
   keyword = encodeURIComponent(keyword);
   // wiki page title search
   // docs: https://www.mediawiki.org/wiki/API:Opensearch
-  let url =
-    `https://zh.wikipedia.org/w/api.php?action=opensearch&search=${keyword}&limit=10&namespace=0&redirects=resolve&format=json&origin=*`;
+  let url = new URL("https://zh.wikipedia.org/w/api.php");
+  url.searchParams.set("action", "opensearch");
+  url.searchParams.set("limit", "10");
+  url.searchParams.set("namespace", "0");
+  url.searchParams.set("redirects", "resolve");
+  url.searchParams.set("format", "json");
+  url.searchParams.set("origin", "*");
+  url.searchParams.set("search", keyword);
   try {
     let response = await fetch(url);
     let json = await response.json();
@@ -232,8 +245,16 @@ async function searchWikiTitle(keyword) {
     keyword = json[1][0];
     // langlinks search
     // docs: https://www.mediawiki.org/wiki/API:Langlinks
-    url =
-      `https://zh.wikipedia.org/w/api.php?action=query&lllimit=1&prop=langlinks&lllang=ja&titles=${keyword}&format=json&origin=*`;
+    // url =
+    //   `?action=query&lllimit=1&prop=langlinks&lllang=ja&titles=${keyword}&format=json&origin=*`;
+    url = new URL("https://zh.wikipedia.org/w/api.php");
+    url.searchParams.set("action", "query");
+    url.searchParams.set("lllimit", "1");
+    url.searchParams.set("prop", "langlinks");
+    url.searchParams.set("lllang", "ja");
+    url.searchParams.set("format", "json");
+    url.searchParams.set("origin", "*");
+    url.searchParams.set("titles", keyword);
     response = await fetch(url);
     json = await response.json();
 
@@ -301,11 +322,59 @@ async function searchImageFromAniList(keyword) {
   return [];
 }
 
+async function searchImageFromGoGoAnime(keyword) {
+  keyword = encodeURIComponent(keyword);
+  // wiki page title search
+  // docs: https://www.mediawiki.org/wiki/API:Opensearch
+  let url = new URL(`https://api.consumet.org/meta/tmdb/${keyword}?page=1`);
+  // url.searchParams.set("keyw", keyword);
+  // url.searchParams.set("origin", "*");
+  // url.searchParams.set("search", keyword);
+  try {
+    let response = await fetch(url);
+    let json = await response.json();
+
+    if (Array.isArray(json.results) && json.results.length > 0) {
+      const images = json.results.map((a) => {
+        return a.image;
+      });
+      return images;
+    }
+  } catch (err) {
+    console.error(err);
+  }
+}
+// let imageURL = "改這";
+// let imageDescription = "The Mozilla logo";
+//
+// downloadedImg = new Image();
+// downloadedImg.crossOrigin = "Anonymous";
+// downloadedImg.addEventListener("load", () => {
+//   const canvas = document.createElement("canvas");
+//   const context = canvas.getContext("2d");
+//
+//   canvas.width = downloadedImg.width;
+//   canvas.height = downloadedImg.height;
+//   canvas.innerText = downloadedImg.alt;
+//
+//   context.drawImage(downloadedImg, 0, 0);
+//   imageBox.appendChild(canvas);
+//
+//   try {
+//     localStorage.setItem("saved-image-example", canvas.toDataURL("image/png"));
+//   } catch (err) {
+//     console.error("Error: ${err}");
+//   }
+// }, false);
+// downloadedImg.alt = imageDescription;
+// downloadedImg.src = imageURL;
+
 // itorr's initial grid context
 const initialTemplate = [
   ["入坑作", "最喜歡", "看最多次", "最想安利", "最佳劇情"],
   ["最佳畫面", "最佳配樂", "最佳配音", "最治癒", "最感動"],
   ["最虐心", "最被低估", "最過譽", "最離譜", "最討厭"],
+  ["最暴死", "最佳原創", "最佳漫改", "最荒謬", "最後悔看"],
 ];
 
 const templateOptions = [
@@ -353,3 +422,11 @@ function addOption(options) {
 addOption(templateOptions);
 
 initTableFromTemplate(initialTemplate);
+
+function printElement(el) {
+  let cloned = el.cloneNode(true);
+  document.body.appendChild(cloned);
+  cloned.classList.add("printable");
+  window.print();
+  document.body.removeChild(cloned);
+}
