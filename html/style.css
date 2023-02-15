@@ -1,4 +1,7 @@
 @media only screen and (min-width: 480px) and (max-width: 767px) {
+  header {
+    display: none;
+  }
 }
 @media only screen and (min-width: 768px) and (max-width: 991px) {
 }
@@ -10,7 +13,7 @@
 footer {
   text-align: center;
   font-size: 12px;
-  padding-top: 15px;
+  padding: 15px 0;
 }
 footer a {
   text-decoration: none;
@@ -20,8 +23,7 @@ footer span {
   color: #999;
   padding: 0 5px;
 }
-button,
-#img_upload_label_browse {
+button {
   padding: 10px 20px;
   border-radius: 5px;
   background-color: #1a8cd8;
@@ -30,11 +32,22 @@ button,
   cursor: pointer;
   font-family: "Noto Sans TC", sans-serif;
   font-size: 1rem;
-  margin-left: 1rem;
 }
 .buttons-container {
   display: flex;
-  gap: 10px;
+  gap: 1.5rem;
+}
+
+#img_upload_label_browse {
+  margin-left: 1rem;
+  padding: 10px 20px;
+  border-radius: 5px;
+  background-color: #1a8cd8;
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-family: "Noto Sans TC", sans-serif;
+  font-size: 1rem;
 }
 
 #search_work_input,
@@ -68,6 +81,7 @@ body {
      font-family: "Noto Sans TC", sans-serif;
      margin: 0;
      font-weight: 500;
+    font-family: system-ui,-apple-system,BlinkMacSystemFont,PingFang SC,Microsoft YaHei UI,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,Helvetica,Arial,sans-serif;
 }
  main {
      max-width: 800px;
@@ -97,6 +111,9 @@ body {
     }
 }
  @media only screen and (min-width: 480px) and (max-width: 767px){
+  header {
+    display: none !important;
+  }
 }
  @media only screen and (min-width: 768px) and (max-width: 991px){
 }
@@ -191,16 +208,6 @@ body {
      display: flex;
      justify-content: center;
 }
- button {
-     padding: 10px 20px;
-     border-radius: 5px;
-     background-color: #1a8cd8;
-     color: white;
-     border: none;
-     cursor: pointer;
-     font-family: "Noto Sans TC", sans-serif;
-     font-size: 1rem;
-}
  #img_container {
      display: flex;
      flex-wrap: wrap;
@@ -269,4 +276,50 @@ dialog h2 {
     size: A4;
   }
 
+}
+
+
+
+header {
+	background-color: #f8f8f8;
+	padding: 14px 22px;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+  transition: box-shadow 0.3s ease;
+}
+
+header:hover {
+	box-shadow: 0px 2px 8px 0px rgba(0,0,0,0.2); /* add box-shadow when header is hovered over */
+}
+
+header h1 {
+	margin: 0;
+  font-size: 24px;
+}
+
+nav ul {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+}
+
+nav li {
+	margin-left: 20px;
+}
+
+nav a {
+	color: #000000;
+	text-decoration: none;
+  font-size: 16px;
+}
+
+nav a:hover {
+	text-decoration: underline;
+}
+
+.nerd-face {
+  position: relative;
+  top: 3px;
 }

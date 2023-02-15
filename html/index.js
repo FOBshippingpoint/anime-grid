@@ -152,15 +152,15 @@ saveButton.addEventListener("click", async function () {
       useCORS: true,
     });
     // download rendered image
-    // const link = document.createElement("a");
-    // link.download = "image.png";
-    // link.href = canvas.toDataURL();
-    // link.click();
+    const link = document.createElement("a");
+    link.download = "anime-grid.png";
+    link.href = canvas.toDataURL();
+    link.click();
 
     // show rendered image at bottom
-    const img = document.createElement("img");
-    document.getElementById("table_container_wrapper").appendChild(img);
-    img.src = canvas.toDataURL();
+    // const img = document.createElement("img");
+    // document.getElementById("table_container_wrapper").appendChild(img);
+    // img.src = canvas.toDataURL();
   } catch (err) {
     console.error(err);
   }
@@ -225,13 +225,11 @@ async function triggerSearch() {
 
 // handle search
 searchInput.addEventListener("keydown", debounce(handleSearchInput));
-searchInput.addEventListener("input", () => console.log("hi"));
+searchInput.addEventListener("input", debounce(handleSearchInput));
 
 async function searchWikiTitle(keyword) {
-  keyword = encodeURIComponent(keyword);
   // wiki page title search
   // docs: https://www.mediawiki.org/wiki/API:Opensearch
-
   let url = new URL("https://zh.wikipedia.org/w/api.php");
   url.searchParams.set("action", "opensearch");
   url.searchParams.set("limit", "10");
@@ -247,11 +245,9 @@ async function searchWikiTitle(keyword) {
 
     if (!json[1][0]) return;
     keyword = json[1][0];
+
     // langlinks search
     // docs: https://www.mediawiki.org/wiki/API:Langlinks
-
-    // url =
-    //   `?action=query&lllimit=1&prop=langlinks&lllang=ja&titles=${keyword}&format=json&origin=*`;
     url = new URL("https://zh.wikipedia.org/w/api.php");
     url.searchParams.set("action", "query");
     url.searchParams.set("lllimit", "1");
@@ -328,59 +324,11 @@ async function searchImageFromAniList(keyword) {
   return [];
 }
 
-async function searchImageFromGoGoAnime(keyword) {
-  keyword = encodeURIComponent(keyword);
-  // wiki page title search
-  // docs: https://www.mediawiki.org/wiki/API:Opensearch
-  let url = new URL(`https://api.consumet.org/meta/tmdb/${keyword}?page=1`);
-  // url.searchParams.set("keyw", keyword);
-  // url.searchParams.set("origin", "*");
-  // url.searchParams.set("search", keyword);
-  try {
-    let response = await fetch(url);
-    let json = await response.json();
-
-    if (Array.isArray(json.results) && json.results.length > 0) {
-      const images = json.results.map((a) => {
-        return a.image;
-      });
-      return images;
-    }
-  } catch (err) {
-    console.error(err);
-  }
-}
-// let imageURL = "改這";
-// let imageDescription = "The Mozilla logo";
-//
-// downloadedImg = new Image();
-// downloadedImg.crossOrigin = "Anonymous";
-// downloadedImg.addEventListener("load", () => {
-//   const canvas = document.createElement("canvas");
-//   const context = canvas.getContext("2d");
-//
-//   canvas.width = downloadedImg.width;
-//   canvas.height = downloadedImg.height;
-//   canvas.innerText = downloadedImg.alt;
-//
-//   context.drawImage(downloadedImg, 0, 0);
-//   imageBox.appendChild(canvas);
-//
-//   try {
-//     localStorage.setItem("saved-image-example", canvas.toDataURL("image/png"));
-//   } catch (err) {
-//     console.error("Error: ${err}");
-//   }
-// }, false);
-// downloadedImg.alt = imageDescription;
-// downloadedImg.src = imageURL;
-
 // itorr's initial grid context
 const initialTemplate = [
   ["入坑作", "最喜歡", "看最多次", "最想安利", "最佳劇情"],
   ["最佳畫面", "最佳配樂", "最佳配音", "最治癒", "最感動"],
   ["最虐心", "最被低估", "最過譽", "最離譜", "最討厭"],
-  ["最暴死", "最佳原創", "最佳漫改", "最荒謬", "最後悔看"],
 ];
 
 const templateOptions = [
