@@ -14,7 +14,6 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400&display=swap" rel="stylesheet">
-
 <body>
   <main>
     <form id="add_row_form" class="main-section">
@@ -50,11 +49,42 @@
     <span>Image placeholder from
       <a href="https://picsum.photos/" target="_blank">Lorem Picsum</a></span>
   </footer>
-  <div id="edit_dialog" class="dialog" style="display: none">
-    <div class="dialog-content">
-      <div class="dialog-header">
-        <h2>加入作品</h2>
-      </div>
+  <!-- <div id="edit_dialog" class="dialog" style="display: none"> -->
+  <!--   <div class="dialog-content"> -->
+  <!--     <div class="dialog-header"> -->
+  <!--       <h2>加入作品</h2> -->
+  <!--     </div> -->
+  <!--     <form id="edit_form"> -->
+  <!--       <div class="dialog-body"> -->
+  <!--         <div> -->
+  <!--           <label for="search">作品名稱</label> -->
+  <!--           <input type="text" id="search_work_input" name="search" placeholder="按Enter開始搜尋" /> -->
+  <!--         </div> -->
+  <!--         <div> -->
+  <!--           <div id="img_container"></div> -->
+  <!--           <div id="search_result"></div> -->
+  <!--         </div> -->
+  <!--         <div> -->
+  <!--           <label for="image">圖片</label> -->
+  <!--           <input type="file" id="img_file_input" name="image" /> -->
+  <!--         </div> -->
+  <!--         <div> -->
+  <!--           <img src="data:," id="img_preview" style="display: none;" /> -->
+  <!--         </div> -->
+  <!--         <div> -->
+  <!--           <label for="description">作品描述</label> -->
+  <!--           <select id="description" required></select> -->
+  <!--         </div> -->
+  <!--       </div> -->
+  <!--       <div class="dialog-footer buttons-container"> -->
+  <!--         <button type="submit">確定</button> -->
+  <!--         <button id="cancel" type="button">取消</button> -->
+  <!--       </div> -->
+  <!--     </form> -->
+  <!--   </div> -->
+  <!-- </div> -->
+  <dialog aria-labelledby="dialog_title" aria-describedby="dialog_description">
+    <h2 id="dialog_title" class="h2">加入作品</h2>
       <form id="edit_form">
         <div class="dialog-body">
           <div class="dialog-title">
@@ -63,7 +93,7 @@
           </div>
           <div>
             <div id="img_container"></div>
-            <div id="search_result"></div>
+            <div id="search_result">&nbsp;&nbsp;</div>
           </div>
           <div>
             <label for="img_file_input" id="img_upload_label">
@@ -86,8 +116,7 @@
           <button id="cancel" type="button">取消</button>
         </div>
       </form>
-    </div>
-  </div>
+  </dialog>
   <script src="index.js" type="module"></script>
 </body>
 
