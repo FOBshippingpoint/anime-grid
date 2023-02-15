@@ -41,8 +41,7 @@ function addRow({ numColumns, descriptionList }) {
   const row = table.insertRow(-1);
   for (let i = 0; i < numColumns; i++) {
     const cell = row.insertCell(i);
-    cell.innerHTML =
-      `<div class="cell-wrapper"><img class="cell-img" src="data:," alt="data:," /><div class="cell-description"></div></div>`;
+    cell.innerHTML = `<div class="cell-wrapper"><img class="cell-img" src="data:," alt="data:," /><div class="cell-description"></div></div>`;
     targetImg = cell.querySelector(".cell-img");
     targetDescription = cell.querySelector(".cell-description");
     if (descriptionList) {
@@ -51,7 +50,7 @@ function addRow({ numColumns, descriptionList }) {
           getRandomArbitrary(250, 300) +
           "/" +
           getRandomArbitrary(400, 450),
-        descriptionList[i],
+        descriptionList[i]
       );
     } else {
       editTargetCell(
@@ -59,7 +58,7 @@ function addRow({ numColumns, descriptionList }) {
           getRandomArbitrary(250, 300) +
           "/" +
           getRandomArbitrary(400, 450),
-        "點擊選擇",
+        "點擊選擇"
       );
     }
   }
@@ -218,7 +217,8 @@ async function triggerSearch() {
     });
     imgContainer.appendChild(img);
   }
-  searchResult.innerHTML = "<span>找不到想要的圖片嗎？</span>" +
+  searchResult.innerHTML =
+    "<span>找不到想要的圖片嗎？</span>" +
     `<a href="https://www.google.com/search?tbm=isch&q=${keyword}" target="_blank">在Google圖片搜尋</a>` +
     "<div>(右鍵複製圖片後在此貼上)</div>";
 }

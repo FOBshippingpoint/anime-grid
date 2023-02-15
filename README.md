@@ -6,12 +6,12 @@ Forked from [itorr/anime-grid](https://github.com/itorr/anime-grid).
 
 ## 截圖
 
-![](https://i.imgur.com/3W13QNP.png)
-![](https://i.imgur.com/bfQDgGM.png)
+![](https://i.imgur.com/3W13QNP.png) ![](https://i.imgur.com/bfQDgGM.png)
 
 ## Developing
 
-Open `html/index.html` to get started, but for a better experience, you can install yarn and run `yarn dev`.
+Open `html/index.html` to get started, but for a better experience, you can
+install yarn and run `yarn dev`.
 
 ```sh
 yarn       # install depenencies
@@ -25,8 +25,10 @@ yarn build # build static html at dist/ directory
 
 ## API Used
 
-- [MediaWiki](https://www.mediawiki.org/wiki/API:Main_page): Translates Chinese anime titles to Japanese.
-- [AniList](https://anilist.gitbook.io/anilist-apiv2-docs/): Search anime images.
+- [MediaWiki](https://www.mediawiki.org/wiki/API:Main_page): Translates Chinese
+  anime titles to Japanese.
+- [AniList](https://anilist.gitbook.io/anilist-apiv2-docs/): Search anime
+  images.
 
 ## Original Idea By [@itorr](https://github.com/itorr/anime-grid)
 
