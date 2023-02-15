@@ -57,17 +57,21 @@
       </div>
       <form id="edit_form">
         <div class="dialog-body">
-          <div>
+          <div class="dialog-title">
             <label for="search">作品名稱</label>
-            <input type="text" id="search_work_input" name="search" placeholder="按Enter開始搜尋" />
+            <input type="text" id="search_work_input" name="search" placeholder="按Enter開始搜尋"  onkeypress="if (event.keyCode == 13) {return false;}"/>
           </div>
           <div>
             <div id="img_container"></div>
             <div id="search_result"></div>
           </div>
           <div>
-            <label for="image">圖片</label>
-            <input type="file" id="img_file_input" name="image" />
+            <label for="img_file_input" id="img_upload_label">
+              <p>圖片</p>
+              <p id="img_upload_label_browse">瀏覽</p>
+            
+            </label>
+            <input type="file" id="img_file_input" name="image" hidden/>
           </div>
           <div>
             <img src="data:," id="img_preview" style="display: none;" />
