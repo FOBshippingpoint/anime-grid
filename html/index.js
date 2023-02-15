@@ -41,7 +41,8 @@ function addRow({ numColumns, descriptionList }) {
   const row = table.insertRow(-1);
   for (let i = 0; i < numColumns; i++) {
     const cell = row.insertCell(i);
-    cell.innerHTML = `<div class="cell-wrapper"><img class="cell-img" src="data:," alt="data:," /><div class="cell-description"></div></div>`;
+    cell.innerHTML =
+      `<div class="cell-wrapper"><img class="cell-img" src="data:," alt="data:," /><div class="cell-description"></div></div>`;
     targetImg = cell.querySelector(".cell-img");
     targetDescription = cell.querySelector(".cell-description");
     if (descriptionList) {
@@ -50,7 +51,7 @@ function addRow({ numColumns, descriptionList }) {
           getRandomArbitrary(250, 300) +
           "/" +
           getRandomArbitrary(400, 450),
-        descriptionList[i]
+        descriptionList[i],
       );
     } else {
       editTargetCell(
@@ -58,7 +59,7 @@ function addRow({ numColumns, descriptionList }) {
           getRandomArbitrary(250, 300) +
           "/" +
           getRandomArbitrary(400, 450),
-        "點擊選擇"
+        "點擊選擇",
       );
     }
   }
@@ -190,6 +191,8 @@ async function handleSearchInput(e) {
   triggerSearch();
 }
 
+const PROXY_URL = "http://proxy.sdovan1.com/api/imageproxy/";
+
 async function triggerSearch() {
   let keyword = searchInput.value;
   if (keyword === "") {
@@ -202,7 +205,6 @@ async function triggerSearch() {
 
   searchResult.innerHTML = "<div>搜尋中...</div><div>&nbsp</div>";
   const images = await searchImageFromAniList(keyword);
-  // const images = await searchImageFromGoGoAnime(keyword);
 
   // show image search result
   imgContainer.innerHTML = "";
@@ -210,20 +212,20 @@ async function triggerSearch() {
     const img = document.createElement("img");
     img.src = url;
     img.addEventListener("click", function () {
-      imgPreview.src = img.src;
+      imgPreview.src = PROXY_URL + img.src.replace("https", "http");
       imgPreview.style.display = "block";
       imgContainer.innerHTML = "";
     });
     imgContainer.appendChild(img);
   }
-  searchResult.innerHTML =
-    "<span>找不到想要的圖片嗎？</span>" +
+  searchResult.innerHTML = "<span>找不到想要的圖片嗎？</span>" +
     `<a href="https://www.google.com/search?tbm=isch&q=${keyword}" target="_blank">在Google圖片搜尋</a>` +
     "<div>(右鍵複製圖片後在此貼上)</div>";
 }
 
 // handle search
 searchInput.addEventListener("keydown", debounce(handleSearchInput));
+searchInput.addEventListener("input", () => console.log("hi"));
 
 async function searchWikiTitle(keyword) {
   keyword = encodeURIComponent(keyword);
