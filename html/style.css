@@ -26,12 +26,13 @@ footer span {
 button {
   padding: 10px 20px;
   border-radius: 5px;
-  background-color: #1a8cd8;
-  color: white;
+  background-color: #f8f8f8;
+  color: rgb(99, 95, 86);
   border: none;
   cursor: pointer;
   font-family: "Noto Sans TC", sans-serif;
   font-size: 1rem;
+  box-shadow: 0 2px 4px -1px rgba(0,0,0,0.2);
 }
 .buttons-container {
   display: flex;
@@ -42,12 +43,13 @@ button {
   margin-left: 1rem;
   padding: 10px 20px;
   border-radius: 5px;
-  background-color: #1a8cd8;
-  color: white;
+  background-color: #f8f8f8;
+  color: rgb(99, 95, 86);
   border: none;
   cursor: pointer;
   font-family: "Noto Sans TC", sans-serif;
   font-size: 1rem;
+  box-shadow: 0 2px 4px -1px rgba(0,0,0,0.2);
 }
 
 #search_work_input,
@@ -222,7 +224,7 @@ body {
      transition: outline 0.1s ease;
 }
  #img_container img:hover {
-     outline: 3px solid #1a8cd8;
+     outline: 3px solid #f8f8f8;
 }
  #img_preview {
      width: 200px;
@@ -282,7 +284,8 @@ dialog h2 {
 
 header {
 	background-color: #f8f8f8;
-	padding: 14px 22px;
+  color: rgb(22, 18, 9);
+  padding: 14px 22px;
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
