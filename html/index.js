@@ -34,41 +34,26 @@ function addRow({ numColumns, descriptionList }) {
     numColumns = table.rows[0].cells.length;
   }
 
-  function getRandomArbitrary(min, max) {
-    return parseInt(Math.random() * (max - min) + min);
-  }
-
   const row = table.insertRow(-1);
   for (let i = 0; i < numColumns; i++) {
     const cell = row.insertCell(i);
-    cell.innerHTML = `<div class="cell-wrapper"><img class="cell-img" src="data:," alt="data:," /><div class="cell-description"></div></div>`;
+    cell.innerHTML =
+      `<div class="cell-wrapper"><img class="cell-img" src="data:," alt="data:," /><div class="cell-description"></div></div>`;
     targetImg = cell.querySelector(".cell-img");
     targetDescription = cell.querySelector(".cell-description");
+    let description;
     if (descriptionList) {
-      editTargetCell(
-        "https://picsum.photos/" +
-          getRandomArbitrary(250, 300) +
-          "/" +
-          getRandomArbitrary(400, 450),
-        descriptionList[i]
-      );
+      description = descriptionList[i];
     } else {
-      editTargetCell(
-        "https://picsum.photos/" +
-          getRandomArbitrary(250, 300) +
-          "/" +
-          getRandomArbitrary(400, 450),
-        "點擊選擇"
-      );
+      description = "點擊選擇";
     }
+    editTargetCell("/assets/placeholder.webp", description);
   }
 }
 
 function editTargetCell(imgURL, description) {
-  if (imgURL !== "data:,") {
-    targetImg.src = imgURL;
-    targetImg.alt = imgURL;
-  }
+  targetImg.src = imgURL;
+  targetImg.alt = imgURL;
   targetDescription.innerText = description;
 }
 
@@ -190,7 +175,7 @@ async function handleSearchInput(e) {
   triggerSearch();
 }
 
-const PROXY_URL = "http://proxy.sdovan1.com/api/imageproxy/";
+const PROXY_URL = "https://imageproxy-rvvouazbtq-de.a.run.app/";
 
 async function triggerSearch() {
   let keyword = searchInput.value;
@@ -217,8 +202,7 @@ async function triggerSearch() {
     });
     imgContainer.appendChild(img);
   }
-  searchResult.innerHTML =
-    "<span>找不到想要的圖片嗎？</span>" +
+  searchResult.innerHTML = "<span>找不到想要的圖片嗎？</span>" +
     `<a href="https://www.google.com/search?tbm=isch&q=${keyword}" target="_blank">在Google圖片搜尋</a>` +
     "<div>(右鍵複製圖片後在此貼上)</div>";
 }
