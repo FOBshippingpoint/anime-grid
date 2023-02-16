@@ -1,4 +1,4 @@
-import placeholderImgURL from './assets/placeholder.webp'
+import placeholderImgURL from "./assets/placeholder.webp";
 
 const table = document.getElementById("my_table");
 
@@ -198,7 +198,7 @@ async function triggerSearch() {
     const img = document.createElement("img");
     img.src = url;
     img.addEventListener("click", function () {
-      imgPreview.src = PROXY_URL + img.src.replace("https", "http");
+      imgPreview.src = PROXY_URL + img.src;
       imgPreview.style.display = "block";
       imgContainer.innerHTML = "";
     });
