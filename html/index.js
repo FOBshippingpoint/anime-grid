@@ -1,3 +1,5 @@
+import placeholderImgURL from './assets/placeholder.webp'
+
 const table = document.getElementById("my_table");
 
 // add row form
@@ -47,7 +49,7 @@ function addRow({ numColumns, descriptionList }) {
     } else {
       description = "點擊選擇";
     }
-    editTargetCell("/assets/placeholder.webp", description);
+    editTargetCell(placeholderImgURL, description);
   }
 }
 
