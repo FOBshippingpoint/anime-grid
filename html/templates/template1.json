@@ -1,0 +1,54 @@
+{
+  "table": [
+    [
+      "entry",
+      "most_liked",
+      "most_rewatched",
+      "best_recommendation",
+      "best_story"
+    ],
+    [
+      "best_visuals",
+      "best_music",
+      "best_voice_acting",
+      "most_healing",
+      "most_touching"
+    ],
+    [
+      "most_heart_wrenching",
+      "most_underrated",
+      "most_overrated",
+      "most_ridiculous",
+      "most_hated"
+    ]
+  ],
+  "options": [
+    "entry",
+    "most_liked",
+    "most_rewatched",
+    "best_recommendation",
+    "best_story",
+    "best_visuals",
+    "best_music",
+    "best_voice_acting",
+    "most_healing",
+    "most_touching",
+    "most_heart_wrenching",
+    "most_underrated",
+    "most_overrated",
+    "most_ridiculous",
+    "most_hated",
+    "most_flop",
+    "best_original",
+    "best_light_novel_adaptation",
+    "best_manga_adaptation",
+    "best_movie",
+    "most_absurd",
+    "most_regretted",
+    "most_underrated_gem",
+    "best_opening_song",
+    "best_ending_song",
+    "most_anticipated_sequel",
+    "yearn_for_more"
+  ]
+}
