@@ -7,7 +7,6 @@ async function loadLocale() {
     if (availableLangs.indexOf(userLang) === -1) {
       userLang = "en";
     }
-    userLang = "ja";
     const response = await fetch(`./_locale/${userLang}.json`);
     const data = await response.json();
     return data;
