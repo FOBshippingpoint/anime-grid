@@ -3,6 +3,8 @@ on:
   push:
     branches:
       - master
+    paths:
+      - 'html/**'
 permissions:
   contents: write
 jobs:
@@ -22,10 +24,6 @@ jobs:
         uses: borales/actions-yarn@v4
         with:
           cmd: install # will run `yarn install` command
-
-      - name: Create env file
-        run: |
-          echo "${{ secrets.ENV_FILE }}" > html/.env.production
 
       - name: Build 🔧
         uses: borales/actions-yarn@v4

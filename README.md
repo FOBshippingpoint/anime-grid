@@ -10,9 +10,6 @@ Forked from [itorr/anime-grid](https://github.com/itorr/anime-grid).
 
 ## Developing
 
-Open `html/index.html` to get started, but for a better experience, you can
-install yarn and run `yarn dev`.
-
 ```sh
 yarn       # install depenencies
 yarn dev   # start the dev server
