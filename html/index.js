@@ -2,23 +2,46 @@ import placeholderImgURL from "./assets/placeholder.webp";
 import templateI18n from "./templates/template1.json";
 import { createTranslate, loadLocale } from "./translate.js";
 
+const PROXY_URL = "https://imageproxy-rvvouazbtq-de.a.run.app/";
+const ANILIST_URL = "https://graphql.anilist.co";
+const WIKI_URL = "https://zh.wikipedia.org/w/api.php";
+
+class TargetCell {
+  nodeImg;
+  nodeDescription;
+
+  constructor(cell = null) {
+    if (cell) {
+      setCellNode(cell);
+    }
+  }
+
+  setCellNode(cell) {
+    this.nodeImg = cell.querySelector(".cell-img");
+    this.nodeDescription = cell.querySelector(".cell-description");
+  }
+
+  editCell(imgURL, description) {
+    this.nodeImg.src = imgURL;
+    this.nodeImg.alt = imgURL;
+    this.nodeDescription.innerText = description;
+  }
+}
+
 loadLocale().then((locale) => {
   const t = createTranslate(locale);
 
-  // translate template
-  const template = {};
-  template.table = templateI18n.table.map((row) => {
-    return row.map(t);
-  });
-  template.options = templateI18n.options.map(t);
+  function translateNodeByKey(node, i18nKey) {
+    node.innerText = t(i18nKey);
+  }
 
   // translate html
   const nodesToTranslate = document.querySelectorAll("[data-i18n]");
   nodesToTranslate.forEach((node) => {
-    const translated = t(node.getAttribute("data-i18n"));
-    node.innerText = translated;
+    const i18nKey = node.getAttribute("data-i18n");
+    translateNodeByKey(node, i18nKey);
   });
-
+  
   const table = document.getElementById("my_table");
 
   // add row form
@@ -40,8 +63,11 @@ loadLocale().then((locale) => {
   const saveButton = document.getElementById("save_button");
 
   // indicate which cell should edit, reassign when user click
-  let targetImg;
-  let targetDescription;
+  const targetCell = new TargetCell();
+
+  function getTableNumColumns(table) {
+    return table?.rows[0]?.cells.length;
+  }
 
   /**
    * Add row to table
@@ -49,33 +75,23 @@ loadLocale().then((locale) => {
    * @param {{numColumns: number, descriptionList: string[]}}
    */
   function addRow({ numColumns, descriptionList }) {
-    if (descriptionList) {
-      numColumns = descriptionList.length;
-    } else if (!numColumns) {
-      numColumns = table.rows[0].cells.length;
-    }
+    numColumns = descriptionList?.length ?? numColumns ??
+      getTableNumColumns(table);
 
+    // insert add bottom
     const row = table.insertRow(-1);
     for (let i = 0; i < numColumns; i++) {
       const cell = row.insertCell(i);
       cell.innerHTML =
-        `<div class="cell-wrapper"><img class="cell-img" src="data:," alt="data:," /><div class="cell-description"></div></div>`;
-      targetImg = cell.querySelector(".cell-img");
-      targetDescription = cell.querySelector(".cell-description");
-      let description;
-      if (descriptionList) {
-        description = descriptionList[i];
-      } else {
-        description = t("click_to_edit");
-      }
-      editTargetCell(placeholderImgURL, description);
+        `<div class="cell-wrapper">
+           <img class="cell-img" src="data:," alt="data:," />
+         <div class="cell-description"></div></div>`;
+      targetCell.setCellNode(cell);
+      const description = Array.isArray(descriptionList)
+        ? descriptionList[i]
+        : t("click_to_edit");
+      targetCell.editCell(placeholderImgURL, description);
     }
-  }
-
-  function editTargetCell(imgURL, description) {
-    targetImg.src = imgURL;
-    targetImg.alt = imgURL;
-    targetDescription.innerText = description;
   }
 
   dialog.addEventListener("close", () => {
@@ -83,7 +99,7 @@ loadLocale().then((locale) => {
   });
 
   // handle submit edit cell form
-  editForm.addEventListener("submit", function (e) {
+  editForm.addEventListener("submit", (e) => {
     e.preventDefault();
     let imgURL;
     if (imgPreview.src === "data:,") {
@@ -91,7 +107,7 @@ loadLocale().then((locale) => {
     } else {
       imgURL = imgPreview.src;
     }
-    editTargetCell(imgURL, descriptionInput.value);
+    targetCell.editCell(imgURL, descriptionInput.value);
     // reset imgPreview
     imgPreview.src = "data:,";
     imgPreview.style.display = "none";
@@ -100,27 +116,25 @@ loadLocale().then((locale) => {
     editForm.reset();
   });
 
-  cancel.addEventListener("click", function () {
-    dialog.close();
-  });
+  cancel.addEventListener("click", () => dialog.close());
 
   function updateImgPreviewFromFile(file) {
     const reader = new FileReader();
-    reader.addEventListener("load", function () {
+    reader.addEventListener("load", () => {
       imgPreview.src = reader.result;
       imgPreview.style.display = "block";
     });
     reader.readAsDataURL(file);
   }
 
-  imgFileInput.addEventListener("change", function () {
+  imgFileInput.addEventListener("change", () => {
     const file = imgFileInput.files[0];
     updateImgPreviewFromFile(file);
   });
 
   // paste, update image
-  editForm.addEventListener("paste", function (e) {
-    const data = e.clipboardData || window.clipboardData;
+  editForm.addEventListener("paste", (e) => {
+    const data = e.clipboardData ?? window.clipboardData;
     if (!data) return;
     const item = [...data.items].find((i) => i.type.includes("image"));
 
@@ -130,34 +144,32 @@ loadLocale().then((locale) => {
   });
 
   // open edit editDialog
-  table.addEventListener("click", function (e) {
+  table.addEventListener("click", (e) => {
     dialog.showModal();
-    const targetCell = e.target.closest(".cell-wrapper");
-    targetImg = targetCell.querySelector(".cell-img");
-    targetDescription = targetCell.querySelector(".cell-description");
-    descriptionInput.value = targetDescription.innerText;
+    targetCell.setCellNode(e.target.closest(".cell-wrapper"));
+    descriptionInput.value = targetCell.nodeDescription.innerText;
     searchInput.focus();
     triggerSearch();
   });
 
   // clear all table data
-  resetButton.addEventListener("click", function () {
+  resetButton.addEventListener("click", () => {
     columnsInput.disabled = false;
     table.innerHTML = "";
   });
 
   // handle add row form submit
-  addRowForm.addEventListener("submit", function (e) {
+  addRowForm.addEventListener("submit", (e) => {
     e.preventDefault();
     columnsInput.disabled = true;
     addRow({ numColumns: columnsInput.value });
   });
 
-  saveButton.addEventListener("click", async function () {
-    saveButton.innerText = t("loading");
+  // save image
+  saveButton.addEventListener("click", async () => {
+    translateNodeByKey(saveButton, 'loading')
     // table_container is the target for final image rendering.
     const target = document.getElementById("table_container_wrapper");
-    // printElement(target);
     try {
       const canvas = await html2canvas(target, {
         useCORS: true,
@@ -175,7 +187,7 @@ loadLocale().then((locale) => {
     } catch (err) {
       console.error(err);
     }
-    saveButton.innerText = t("save_image");
+    translateNodeByKey(saveButton, 'save_image')
   });
 
   function debounce(func, timeout = 300) {
@@ -195,8 +207,6 @@ loadLocale().then((locale) => {
     triggerSearch();
   }
 
-  const PROXY_URL = "https://imageproxy-rvvouazbtq-de.a.run.app/";
-
   async function triggerSearch() {
     let keyword = searchInput.value;
     if (keyword === "") {
@@ -215,7 +225,7 @@ loadLocale().then((locale) => {
     for (const url of images) {
       const img = document.createElement("img");
       img.src = url;
-      img.addEventListener("click", function () {
+      img.addEventListener("click", () => {
         imgPreview.src = PROXY_URL + img.src;
         imgPreview.style.display = "block";
         imgContainer.innerHTML = "";
@@ -234,18 +244,18 @@ loadLocale().then((locale) => {
   searchInput.addEventListener("input", debounce(handleSearchInput));
 
   async function searchWikiTitle(keyword) {
-    // wiki page title search
-    // docs: https://www.mediawiki.org/wiki/API:Opensearch
-    let url = new URL("https://zh.wikipedia.org/w/api.php");
-    url.searchParams.set("action", "opensearch");
-    url.searchParams.set("limit", "10");
-    url.searchParams.set("namespace", "0");
-    url.searchParams.set("redirects", "resolve");
-    url.searchParams.set("format", "json");
-    url.searchParams.set("origin", "*");
-    url.searchParams.set("search", keyword);
-
     try {
+      // wiki page title search
+      // docs: https://www.mediawiki.org/wiki/API:Opensearch
+      let url = new URL(WIKI_URL);
+      url.searchParams.set("action", "opensearch");
+      url.searchParams.set("limit", "10");
+      url.searchParams.set("namespace", "0");
+      url.searchParams.set("redirects", "resolve");
+      url.searchParams.set("format", "json");
+      url.searchParams.set("origin", "*");
+      url.searchParams.set("search", keyword);
+
       let response = await fetch(url);
       let json = await response.json();
 
@@ -254,7 +264,7 @@ loadLocale().then((locale) => {
 
       // langlinks search
       // docs: https://www.mediawiki.org/wiki/API:Langlinks
-      url = new URL("https://zh.wikipedia.org/w/api.php");
+      url = new URL(WIKI_URL);
       url.searchParams.set("action", "query");
       url.searchParams.set("lllimit", "1");
       url.searchParams.set("prop", "langlinks");
@@ -266,13 +276,15 @@ loadLocale().then((locale) => {
       response = await fetch(url);
       json = await response.json();
 
-      if (Object.values(json.query.pages).length === 0) return;
+      const noResults = Object.values(json.query.pages).length === 0;
+      if (noResults) return;
       // get first object
       const langlinks = Object.values(json.query.pages)[0].langlinks;
       if (!langlinks) return;
 
       const item = langlinks[0];
-      // replace like "進撃の巨人 (漫画)" -> "進撃の巨人"
+      // replace redundant
+      // e.g., "進撃の巨人 (漫画)" -> "進撃の巨人"
       const title = item["*"].replace(/\s\(.*\)/, "");
       return title;
     } catch (err) {
@@ -281,7 +293,8 @@ loadLocale().then((locale) => {
   }
 
   async function searchImageFromAniList(keyword) {
-    const query = `
+    const body = {
+      query: `
       query ($page: Int, $perPage: Int, $search: String) {
         Page(page: $page, perPage: $perPage) {
           pageInfo {
@@ -302,38 +315,35 @@ loadLocale().then((locale) => {
             }
           }
         }
-      }`;
-
-    const variables = {
-      page: 1,
-      perPage: 12,
-      search: keyword,
+      }`,
+      variables: {
+        page: 1,
+        perPage: 12,
+        search: keyword,
+      },
     };
 
-    const response = await fetch("https://graphql.anilist.co", {
+    const response = await fetch(ANILIST_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "Accept-Encoding": "gzip",
       },
-      body: JSON.stringify({ query, variables }),
+      body: JSON.stringify(body),
     });
     const json = await response.json();
     const mediaList = json?.data?.Page?.media;
-    if (Array.isArray(mediaList) && mediaList.length > 0) {
-      const images = mediaList.map((m) => {
-        return m.coverImage.large;
-      });
-      return images;
-    }
-    return [];
+    const images = mediaList?.map((m) => {
+      return m.coverImage.large;
+    }) ?? [];
+    return images;
   }
 
   function initFromTemplate(template) {
     // init table
-    for (const descriptionList of template.table) {
+    template.table.forEach((descriptionList) => {
       addRow({ descriptionList });
-    }
+    });
     // addOption
     template.options.forEach((element) => {
       const option = document.createElement("option");
@@ -343,14 +353,16 @@ loadLocale().then((locale) => {
     });
   }
 
-  initFromTemplate(template);
+  function translateTemplate(templateI18n) {
+    // translate template
+    const template = {};
+    template.table = templateI18n.table.map((row) => {
+      return row.map(t);
+    });
+    template.options = templateI18n.options.map(t);
+    return template;
+  }
 
-  // deprecated method for printing
-  // function printElement(el) {
-  //   let cloned = el.cloneNode(true);
-  //   document.body.appendChild(cloned);
-  //   cloned.classList.add("printable");
-  //   window.print();
-  //   document.body.removeChild(cloned);
-  // }
+  const template = translateTemplate(templateI18n);
+  initFromTemplate(template);
 });
